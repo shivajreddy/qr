@@ -1,0 +1,25 @@
+CompileFlags:
+  Add:
+    - "-std=c++17"
+    - "-I/usr/local/Cellar/gcc/15.2.0/include/c++/15/x86_64-apple-darwin24"
+    - "-I/Users/smpl/dev/my_cpp/projects/hackattic/mini_miner/include"
+    - "-I/home/smpl/dev/my_cpp/projects/hackattic/mini_miner/include"
+    - "-Isrc"
+    - "-I${workspaceFolder}/include"
+    - "-I/usr/include/curl"
+    - "-I/usr/local/opt/openssl@3/include"
+    - "-L/usr/local/opt/openssl@3/lib"
+    - "-lssl"
+    - "-lcrypto"
+    - "-Wall"
+    - "-Wextra"
+
+  Checks: "-*,readability-identifier-naming"
+
+  CheckOptions:
+    - key:             readability-identifier-naming.VariableCase
+      value:           lower_case
+    - key:             readability-identifier-naming.IgnoreMainLikeFunctions
+      value:           1
+    - key:             readability-identifier-naming.IgnorePattern
+      value:           '^[ix]$'  # regex to ignore single-letter variable names i or x
