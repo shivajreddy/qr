@@ -311,10 +311,10 @@ void build_image_from_file() {
     // const char* img_path = "/mnt/c/Users/sreddy/Desktop/test2.png";
     // const char* img_path = "C:/Users/sredd/Desktop/test2.png";
     // const char* img_path = "C:/Users/sreddy/Desktop/qr1.png";
-    // const char* img_path = "C:/Users/sreddy/Desktop/qr2.png";
+    const char* img_path = "C:/Users/sreddy/Desktop/qr2.png";
     // const char* img_path = "/mnt/c/Users/sreddy/Desktop/qr1.png";
     // const char* img_path = "/Users/smpl/Desktop/qr1.png"; // blank
-    const char* img_path = "/Users/smpl/Desktop/qr2.png"; // blank
+    // const char* img_path = "/Users/smpl/Desktop/qr2.png"; // blank
     // const char* img_path = "/Users/smpl/Desktop/pix1.png"; // blank
     // const char* img_path = "/Users/smpl/Desktop/pix2.png"; // white
     // const char* img_path = "/Users/smpl/Desktop/test.png"; // has padding
