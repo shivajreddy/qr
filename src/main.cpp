@@ -1,6 +1,7 @@
 #include "api.h"
 #include "nlohmann/json.hpp"
 #include <chrono>
+#include <vector>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -119,6 +120,18 @@ vector<Cluster> get_clusters(vector<Point> points, double tolerance = 10.0) {
     }
     return res;
 }
+
+struct QROrientation {
+    Pattern top_left;
+    Pattern top_right;
+    Pattern bottom_left;
+    float module_size;
+    int version;   // QR versions (1-40)
+    int dimension; // modules per side (21 for v1, 25 for v2, etc.)
+};
+
+// Identify which finder pattern is in which corner using distance
+QROrientation determine_orientation(Pattern tl, Pattern tr, Pattern bl);
 
 struct Image {
     int width;
@@ -303,6 +316,90 @@ public:
         }
     }
 };
+
+// [SKIPPED] Stage 5: Resolve perspective of the image
+// Stage 6: Grid sampling
+vector<vector<bool>> extract_modules(QROrientation& qro, Image& img);
+
+struct FormatInfo {
+    int error_correction_lvl;
+    int mask_pattern;
+};
+
+FormatInfo read_format_info(vector<vector<bool>>& modules, int mask_pattern);
+
+// Apply BCH error correction to format bits
+int correct_format_bits(int raw_bits);
+// Apply mask pattern to modules
+void unmask_modules(vector<vector<bool>>& modules, int mask_pattern);
+// Mask formulas for patterns 0-7
+int get_mask(int row, int col, int pattern);
+
+// Read bits in the specific serpentine pattern QR uses
+vector<uint8_t> read_data_codewords(vector<vector<bool>>& modules, int version,
+                                    int error_correction_level);
+
+// Check if position is a function pattern (finder, timing, etc.)
+bool is_function_pattern(int row, int col, int version);
+
+// Decode Reed-Solomon error correction
+bool reed_solomon_decode(vector<uint8_t>& codewords, int num_data_codewords,
+                         int num_ec_codewords);
+
+// Galois Field arithmetic helpers
+uint8_t gf_mult(uint8_t a, uint8_t b);
+uint8_t gf_div(uint8_t a, uint8_t b);
+
+enum EncodingMode { NUMERIC = 1, ALPHANUMERIC = 2, BYTE = 4, KANJI = 8 };
+
+struct DecodedData {
+    string content;
+    EncodingMode mode;
+};
+
+// Main decoding function
+DecodedData decode_data(vector<uint8_t>& codewords, int version);
+
+// Mode-specific decoders
+string decode_numeric(const uint8_t* bits, int length);
+string decode_alphanumeric(const uint8_t* bits, int length);
+string decode_byte(const uint8_t* bits, int length);
+
+// Main pipeline function
+string decode_qr_code(Image& img) {
+    // 1. Detect finder patterns (already done)
+    auto patterns = img.detect_patterns();
+
+    // 2. Determine orientation
+    QROrientation orient = determine_orientation(patterns);
+
+    // 3. Get perspective transform
+    Matrix3x3 transform =
+        get_perspective_transform(orient.top_left, orient.top_right,
+                                  orient.bottom_left, orient.dimension);
+
+    // 4. Extract module grid
+    auto modules = extract_modules(img, orient, transform);
+
+    // 5. Read format info
+    FormatInfo format = read_format_info(modules, orient.dimension);
+
+    // 6. Unmask
+    unmask_modules(modules, format.mask_pattern);
+
+    // 7. Read codewords
+    auto codewords = read_data_codewords(modules, orient.version,
+                                         format.error_correction_level);
+
+    // 8. Error correction
+    reed_solomon_decode(codewords, /*data_count*/, /*ec_count*/);
+
+    // 9. Decode final data
+    DecodedData result = decode_data(codewords, orient.version);
+
+    return result.content;
+}
+
 void build_image_from_file() {
     // START GLOBAL TIME HERE
     start_time = chrono::high_resolution_clock::now();
@@ -314,7 +411,8 @@ void build_image_from_file() {
     // const char* img_path = "C:/Users/sreddy/Desktop/qr2.png";
     // const char* img_path = "/mnt/c/Users/sreddy/Desktop/qr1.png";
     // const char* img_path = "/Users/smpl/Desktop/qr1.png"; // blank
-    const char* img_path = "/Users/smpl/Desktop/qr2.png"; // blank
+    // const char* img_path = "/Users/smpl/Desktop/qr2.png"; // blank
+    const char* img_path = "/Users/smpl/Desktop/qr3.jpg"; // blank
     // const char* img_path = "/Users/smpl/Desktop/pix1.png"; // blank
     // const char* img_path = "/Users/smpl/Desktop/pix2.png"; // white
     // const char* img_path = "/Users/smpl/Desktop/test.png"; // has padding
@@ -354,10 +452,11 @@ void build_image_from_file() {
         printf("\n");
     }
     /*
-    */
+     */
 
     stbi_image_free(pixels); // free up the image, closes the fd
 }
+
 bool read_input_from_api() {
     // Get the image url
     printf("Stage1: Get Data\n");
@@ -377,6 +476,7 @@ bool read_input_from_api() {
 }
 
 void send_response_to_api() {
+    // int x = 21;
 }
 
 int main() {
@@ -390,4 +490,3 @@ int main() {
     // send_response_to_api();
     return 0;
 }
-

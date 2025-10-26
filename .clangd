@@ -14,12 +14,7 @@ CompileFlags:
     - "-Wall"
     - "-Wextra"
 
-  Checks: "-*,readability-identifier-naming"
-
-  CheckOptions:
-    - key:             readability-identifier-naming.VariableCase
-      value:           lower_case
-    - key:             readability-identifier-naming.IgnoreMainLikeFunctions
-      value:           1
-    - key:             readability-identifier-naming.IgnorePattern
-      value:           '^[ix]$'  # regex to ignore single-letter variable names i or x
+InlayHints:
+  ParameterNames: No      # Disable parameter name hints in function calls
+  DeducedTypes: No        # Disable auto/decltype type hints
+  Designators: No         # Disable designated initializer hints
