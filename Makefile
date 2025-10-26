@@ -1,5 +1,4 @@
 # Cross-platform Makefile for Windows and macOS
-
 # Detect OS
 ifeq ($(OS),Windows_NT)
     DETECTED_OS := Windows
@@ -20,10 +19,11 @@ INCLUDE_DIR := include
 SOURCES := $(SRC_DIR)/main.cpp $(SRC_DIR)/api.cpp
 
 # OS-specific settings
+# OS-specific settings
 ifeq ($(DETECTED_OS),Windows)
     # Windows settings
     TARGET := $(BUILD_DIR)/main.exe
-    CURL_DIR := C:/lib/curl
+    CURL_DIR := lib/curl
     INCLUDES := -I$(INCLUDE_DIR) -I$(CURL_DIR)/include
     LIBS := -L$(CURL_DIR)/lib -lcurl -lws2_32
 
@@ -42,6 +42,7 @@ else ifeq ($(DETECTED_OS),Darwin)
     # macOS commands
     MKDIR := @mkdir -p $(BUILD_DIR)
     RM := @rm -rf $(BUILD_DIR)
+    COPY_DLL := @: # No-op on macOS
     RUN := ./$(TARGET)
 else
     # Linux/other Unix settings
@@ -52,6 +53,7 @@ else
     # Unix commands
     MKDIR := @mkdir -p $(BUILD_DIR)
     RM := @rm -rf $(BUILD_DIR)
+    COPY_DLL := @: # No-op on Linux
     RUN := ./$(TARGET)
 endif
 
@@ -61,6 +63,11 @@ all: $(TARGET)
 $(TARGET): $(SOURCES)
 	$(MKDIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(SOURCES) -o $(TARGET) $(LIBS)
+ifeq ($(DETECTED_OS),Windows)
+	@echo Copying DLL...
+	@cmd /c copy /Y lib\curl\bin\libcurl-x64.dll build\libcurl-x64.dll
+	@echo DLL copy complete!
+endif
 	@echo Build complete for $(DETECTED_OS)!
 
 run: $(TARGET)
@@ -80,5 +87,8 @@ info:
 	@echo Flags: $(CXXFLAGS)
 	@echo Includes: $(INCLUDES)
 	@echo Libraries: $(LIBS)
+ifeq ($(DETECTED_OS),Windows)
+	@echo DLL: $(CURL_DLL) -^> $(TARGET_DLL)
+endif
 
 .PHONY: all run clean rebuild info
