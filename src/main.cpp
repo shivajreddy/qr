@@ -465,9 +465,25 @@ Image build_image() {
     // START GLOBAL TIME HERE
     start_time = chrono::high_resolution_clock::now();
 
+<<<<<<< Updated upstream
     // image_path = "C:/Users/sreddy/Desktop/qr1.png";
     // image_path = "/mnt/c/Users/sreddy/Desktop/qr1.png";
     image_path = "/Users/smpl/Desktop/qr2.png"; // blank
+=======
+    // const char* img_path = "/mnt/c/Users/sreddy/Desktop/test1.png"; // white
+    // const char* img_path = "/mnt/c/Users/sreddy/Desktop/test2.png";
+    // const char* img_path = "C:/Users/sredd/Desktop/test2.png";
+    // const char* img_path = "C:/Users/sreddy/Desktop/qr1.png";
+    const char* img_path = "C:/Users/sreddy/Desktop/qr2.png";
+    // const char* img_path = "/mnt/c/Users/sreddy/Desktop/qr1.png";
+    // const char* img_path = "/Users/smpl/Desktop/qr1.png"; // blank
+    // const char* img_path = "/Users/smpl/Desktop/qr2.png"; // blank
+    // const char* img_path = "/Users/smpl/Desktop/pix1.png"; // blank
+    // const char* img_path = "/Users/smpl/Desktop/pix2.png"; // white
+    // const char* img_path = "/Users/smpl/Desktop/test.png"; // has padding
+    // const char* img_path = "/Users/smpl/Desktop/test2.png"; // no padding
+    // const char* img_path = "/Users/smpl/Desktop/test3.png"; // color
+>>>>>>> Stashed changes
 
     int width, height, channels;
     pixels = stbi_load(image_path.c_str(), &width, &height, &channels, 0);
